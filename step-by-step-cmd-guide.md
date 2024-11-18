@@ -52,7 +52,97 @@ Create a bucket policy file named `bucket-policy.json`:
     ]
 }
 
-Apply the policy:
+
+# command to fix json formatting while pasting in vim file
+
+To fix JSON formatting while pasting in a Vim file, you can utilize a command that processes the JSON through an external tool like Python or `jq`. Here are several methods to achieve this:
+
+## Using Python's `json.tool`
+
+1. **Format the Entire File**: To format the entire JSON file, use the following command in Vim:
+   
+   :%!python -m json.tool
+  
+   This command pipes the entire content of the file through Python's JSON tool, which pretty-prints the JSON.
+
+2. **Format Specific Lines**: If you want to format a specific range of lines, you can specify the line numbers:
+   
+   :3,5!python -m json.tool
+  
+   Replace `3,5` with your desired line range.
+
+3. **Format Current Line**: To format just the current line you're on:
+   
+   :.!python -m json.tool
+  
+
+4. **Format Selected Text**: In Visual Mode, highlight the text you want to format and then run:
+   
+   :'<,'>!python -m json.tool
+  
+
+## Creating a Custom Command
+
+# To simplify the process, you can add a custom command to your `.vimrc` file:
+
+
+command! -range FormatJSON <line1>,<line2>!python -m json.tool
+
+
+# After adding this, you can format JSON by simply typing `:FormatJSON` in command mode.
+
+## Using `jq` for Formatting
+
+Alternatively, if you prefer using `jq`, which is a powerful command-line JSON processor, you can format JSON with:
+
+
+:%!jq .
+
+
+# This will also format the entire file and is particularly useful if you have `jq` installed.
+
+## Summary of Commands
+
+| Command Type                | Command                          |
+|-----------------------------|----------------------------------|
+| Format Entire File          | `:%!python -m json.tool`        |
+| Format Specific Lines       | `:3,5!python -m json.tool`      |
+| Format Current Line         | `:.!python -m json.tool`        |
+| Format Selected Text        | `:'<,'>!python -m json.tool`    |
+| Custom Command              | `:FormatJSON` (after setup)     |
+| Using jq                    | `:%!jq .`                        |
+
+# These commands will help ensure that your JSON is well-formatted and easy to read while working in Vim.
+
+
+# Review Current Settings: Check the current Block Public Access settings for your S3 bucket using the AWS CLI:
+aws s3api get-public-access-block --bucket sohiverse.cloud
+
+[cloudshell-user@ip-10-132-40-122 ~]$ aws s3api get-public-access-block --bucket sohiverse.cloud
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+
+# Modify Block Public Access Settings
+# If BlockPublicPolicy is enabled, you will need to disable it in order to apply a public policy
+aws s3api put-public-access-block --bucket sohiverse.cloud --public-access-block-configuration '{
+    "BlockPublicAcls": false,
+    "IgnorePublicAcls": false,
+    "BlockPublicPolicy": false,
+    "RestrictPublicBuckets": false
+}'
+
+
+# Apply Your Bucket Policy
+aws s3api put-bucket-policy --bucket sohiverse.cloud --policy file://bucket-policy.json
+
+
+# Apply the policy:
 
 aws s3api put-bucket-policy --bucket your-domain.com --policy file://bucket-policy.json
 aws s3api put-bucket-policy --bucket sohiverse.cloud --policy file://bucket-policy.json
@@ -61,8 +151,25 @@ aws s3api put-bucket-policy --bucket sohiverse.cloud --policy file://bucket-poli
 
 ## 4. Upload Website Files
 
+# To download the file from the provided URL using a command line interface, you can use the `curl` or `wget` command. Here are examples of both:
+
+# Using `curl`
+
+curl -O https://www.free-css.com/assets/files/free-css-templates/download/page296/oxer.zip
+
+
+# Using `wget`
+
+wget https://www.free-css.com/assets/files/free-css-templates/download/page296/oxer.zip
+
+
+# Both commands will download the `oxer.zip` file to your current directory. Make sure you have either `curl` or `wget` installed on your system to use these commands.
+
+
+
 aws s3 sync ./your-website-directory s3://your-domain.com --delete
-aws s3 sync ./your-website-directory s3://sohiverse.cloud --delete
+aws s3 sync ./oxer-html s3://sohiverse.cloud --delete
+
 
 **Why**: Uploads your website files to the S3 bucket.
 
@@ -93,7 +200,7 @@ aws route53 change-resource-record-sets \
     }'
 
 aws route53 change-resource-record-sets \
-    --hosted-zone-id YOUR_HOSTED_ZONE_ID \
+    --hosted-zone-id Z00334501MYUPA3SN5XXZ \
     --change-batch '{
         "Changes": [{
             "Action": "CREATE",
