@@ -1,5 +1,5 @@
 
-# Deploying a Static Website on AWS S3 with Route 53 (us-east-1)
+# Deploying a Static Website on AWS S3 with Route 53 (us-east-1) command line guide via aws cloud shell
 
 ## Prerequisites
 - AWS Account with appropriate permissions
